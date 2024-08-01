@@ -32,12 +32,14 @@ async function init() {
       }
 
       const msg = JSON.parse(Messages[0].Body);
-      const result= schema.safeParse(msg);
+      const result = schema.safeParse(msg);
 
-      if(!result.success){
+      if (!result.success) {
          console.log(result.error);
          continue
       }
+
+      const { git_url, project_id } = result?.data;
 
       //process 1 : clone => install => build
       await runCommand('docker', ['run', '--name', 'build-container', '-e', `GITHUB_URL=${git_url}`, 'build-server'])
