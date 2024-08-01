@@ -65,8 +65,7 @@ import fs from "fs";
 import path from "path";
 import chalk from "chalk";
 
-export const __dirname = path.dirname(import.meta.dirname);
-const buildDirPath = path.join(__dirname, "build");
+const buildDirPath = path.join(process.cwd(), "build");
 
 
 export async function sendObjectsToS3(projectId) {

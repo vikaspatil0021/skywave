@@ -8,8 +8,7 @@ import {
    sendObjectsToS3,
    sqsClient,
    sqs_delete_message_command,
-   sqs_receive_message_command,
-   __dirname
+   sqs_receive_message_command
 } from "./util.js";
 
 
@@ -67,7 +66,7 @@ async function init() {
                console.log(chalk.blue("\nProcess 3 closed with SuccessCode:", code))
             })
             .catch(code => console.log(chalk.blue("Process 3 closed with ErrorCode:", code)))
-         fs.rmSync(path.join(__dirname, "build"), { recursive: true, force: true })
+         fs.rmSync(path.join(process.cwd(), "build"), { recursive: true, force: true })
       }
 
       //process 4 delete build-container
