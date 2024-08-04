@@ -36,6 +36,8 @@ async function init() {
 
       if (!result.success) {
          console.log(result.error);
+         await sqsClient.send(sqs_delete_message_command(Messages))
+
          continue
       }
 
