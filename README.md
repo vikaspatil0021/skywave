@@ -1,4 +1,5 @@
 ## Clone, build and store
-![image](https://github.com/user-attachments/assets/c0cc5880-b66c-4bc9-a4ac-547ae529445e)
+![Screenshot from 2024-08-11 12-42-47](https://github.com/user-attachments/assets/a3014bd9-cbda-4220-85b0-0d89f7e4edad)
 ## Access deployed react website
-![Screenshot from 2024-08-11 12-26-25](https://github.com/user-attachments/assets/bfe04793-607f-42aa-ac70-4edb7d5dcb97)
+![Screenshot from 2024-08-11 12-42-37](https://github.com/user-attachments/assets/a0825e82-ec53-4385-b035-c312c4740ad4)
+
