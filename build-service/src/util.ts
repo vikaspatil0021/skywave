@@ -41,15 +41,15 @@ export function runCommand(command: string, args: string[]): Promise<number> {
 
       const cmd = spawn(command, args);
 
-      cmd.stdout.on('data', (data:Buffer) => {
+      cmd.stdout.on('data', (data: Buffer) => {
          console.log(data.toString());
       });
 
-      cmd.stderr.on('data', (data:Buffer) => {
+      cmd.stderr.on('data', (data: Buffer) => {
          console.error(data.toString());
       });
 
-      cmd.on('close', (code:number) => {
+      cmd.on('close', (code: number) => {
          (code === 0) ? resolve(code) : reject(code)
       });
 
@@ -68,20 +68,20 @@ import chalk from "chalk";
 const buildDirPath = path.join(process.cwd(), "build");
 
 
-export async function sendObjectsToS3(projectId: string):Promise<number> {
+export async function sendObjectsToS3(projectId: string): Promise<number> {
    return new Promise(async (resolve, reject) => {
       try {
          console.log(chalk.green("\nUploading build...\n"))
          const files_and_folders = fs.readdirSync(buildDirPath, { recursive: true }) as string[];
 
-         const files = files_and_folders.filter((file:string) => {    //return only files
+         const files = files_and_folders.filter((file: string) => {    //return only files
             const filePath = path.join(buildDirPath, file as string);
             const fileStat = fs.lstatSync(filePath);
 
             return !fileStat.isDirectory()
          }) as string[]
 
-         const uploadPromises = files.map(async (file:string) => {
+         const uploadPromises = files.map(async (file: string) => {
             try {
                const filePath = path.join(buildDirPath, file as string);
 
