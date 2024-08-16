@@ -20,13 +20,13 @@ export const sqsClient = new SQSClient(awsConfig);
 export const s3Client = new S3Client(awsConfig)
 
 export const sqs_receive_message_command = new ReceiveMessageCommand({
-   QueueUrl: process.env.SQS_URL,
+   QueueUrl: process.env.SQS_URL as string,
    MaxNumberOfMessages: 1,
    WaitTimeSeconds: 10
 })
 
 export const sqs_delete_message_command = (receiptHandle: string) => new DeleteMessageCommand({
-   QueueUrl: process.env.SQS_URL,
+   QueueUrl: process.env.SQS_URL as string,
    ReceiptHandle: receiptHandle
 })
 
@@ -36,20 +36,20 @@ const s3_putObject_command = (objectData: PutObjectCommandInput) => new PutObjec
 
 import { spawn } from "child_process";
 
-export function runCommand(command: string, args: string[]) {
+export function runCommand(command: string, args: string[]): Promise<number> {
    return new Promise((resolve, reject) => {
 
       const cmd = spawn(command, args);
 
-      cmd.stdout.on('data', (data) => {
+      cmd.stdout.on('data', (data:Buffer) => {
          console.log(data.toString());
       });
 
-      cmd.stderr.on('data', (data) => {
+      cmd.stderr.on('data', (data:Buffer) => {
          console.error(data.toString());
       });
 
-      cmd.on('close', (code) => {
+      cmd.on('close', (code:number) => {
          (code === 0) ? resolve(code) : reject(code)
       });
 
@@ -68,7 +68,7 @@ import chalk from "chalk";
 const buildDirPath = path.join(process.cwd(), "build");
 
 
-export async function sendObjectsToS3(projectId: string) {
+export async function sendObjectsToS3(projectId: string):Promise<number> {
    return new Promise(async (resolve, reject) => {
       try {
          console.log(chalk.green("\nUploading build...\n"))
