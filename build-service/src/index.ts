@@ -9,7 +9,7 @@ import {
    sqsClient,
    sqs_delete_message_command,
    sqs_receive_message_command
-} from "./util.js";
+} from "./util";
 
 
 const schema = z.object({
@@ -27,16 +27,15 @@ async function init() {
       // recieve messages = {id:'abc123',url:'https://github.com/vikaspatil0021/exmapleRepo'}
       const { Messages } = await sqsClient.send(sqs_receive_message_command);
       if (!Messages) {
-         console.log('No message in the queue')
          continue;
       }
 
-      const msg = JSON.parse(Messages[0].Body);
+      const msg = JSON.parse(Messages[0].Body as string);
       const result = schema.safeParse(msg);
 
       if (!result.success) {
          console.log(result.error);
-         await sqsClient.send(sqs_delete_message_command(Messages))
+         await sqsClient.send(sqs_delete_message_command(Messages[0].ReceiptHandle as string))
 
          continue
       }
@@ -80,7 +79,7 @@ async function init() {
 
 
       //delete the message from the queue
-      await sqsClient.send(sqs_delete_message_command(Messages))
+      await sqsClient.send(sqs_delete_message_command(Messages[0].ReceiptHandle as string))
    }
 }
 
