@@ -8,6 +8,7 @@ git clone $GITHUB_URL /home/app/output
 
 if [ $? -eq 0 ]; then
 	echo -e "Cloning completed successfully."
+	sleep 0
 else
 	echo -e "Cloning failed."
 	exit 1
@@ -20,6 +21,7 @@ npm install
 
 if [ $? -eq 0 ]; then
 	echo -e "npm install completed successfully."
+	sleep 0
 else
 	echo -e "npm install failed."
 	exit 1

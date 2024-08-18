@@ -10,9 +10,12 @@ import {
    sqs_receive_message_command
 } from "./util.js";
 
+import { generateLogProducer, kafkaProducer } from "./kafka.js";
+
 
 const schema = z.object({
    project_id: z.string(),
+   deployment_id: z.string(),
    git_url: z.string().url().includes("github.com", { message: "Invalid GitHub URL" })
 });
 
@@ -39,46 +42,52 @@ async function init() {
          continue
       }
 
-      const { git_url, project_id } = result?.data;
+      const { git_url, project_id, deployment_id } = result?.data;
+
+      //connect kafka and using closure to pass project_id and deployment_id
+      await kafkaProducer.connect()
+      const logProducer = generateLogProducer(project_id, deployment_id);
+
 
       //process 1 : clone => install => build
-      await runCommand('docker', ['run', '--name', 'build-container', '-e', `GITHUB_URL=${git_url}`, 'build-server'])
+      await runCommand('docker', ['run', '--name', 'build-container', '-e', `GITHUB_URL=${git_url}`, 'build-server'], logProducer)
          .then((code: number) => {
             process1Success = true;
-            console.log("Process 1 closed with SuccessCode:", code)
+            logProducer(`Process 1 closed with SuccessCode:${code}`)
          })
-         .catch((code: number) => console.log("Process 1 closed with ErrorCode:", code))
+         .catch((code: number) => logProducer(`Process 1 closed with ErrorCode:${code}`))
 
       if (process1Success) {
          //process 2 : copy build folder
-         await runCommand('docker', ['cp', 'build-container:/home/app/output/build', 'build'])
+         await runCommand('docker', ['cp', 'build-container:/home/app/output/build', 'build'], logProducer)
             .then((code: number) => {
                process2Success = true
-               console.log("\nBuild copied successfully.")
-               console.log("\nProcess 2 closed with SuccessCode:", code)
+               logProducer(`\nBuild copied successfully.\nProcess 2 closed with SuccessCode:${code}`)
             })
-            .catch((code: number) => console.log("Process 2 closed with ErrorCode:", code))
+            .catch((code: number) => logProducer(`Process 2 closed with ErrorCode:${code}`))
       }
 
       //process 3 upload build 
       if (process1Success && process2Success) {
-         await sendObjectsToS3(project_id)
+         await sendObjectsToS3(project_id, logProducer)
             .then((code: number) => {
-               console.log("\nBuild uploaded successfully.")
-               console.log("\nProcess 3 closed with SuccessCode:", code)
+               logProducer(`\nBuild uploaded successfully.\nProcess 3 closed with SuccessCode: ${code}`)
             })
-            .catch((code: number) => console.log("Process 3 closed with ErrorCode:", code))
+            .catch((code: number) => logProducer(`Process 3 closed with ErrorCode:${code}`))
          fs.rmSync(path.join(process.cwd(), "build"), { recursive: true, force: true })
       }
 
       //process 4 delete build-container
-      await runCommand('docker', ['rm', 'build-container'])
-         .then((code: number) => console.log("Process 4 closed with SuccessCode:", code))
-         .catch((code: number) => console.log("Process 4 closed with ErrorCode:", code))
+      await runCommand('docker', ['rm', 'build-container'], logProducer)
+         .then((code: number) => logProducer(`Process 4 closed with SuccessCode: ${code}`))
+         .catch((code: number) => logProducer(`Process 4 closed with ErrorCode:${code}`))
 
 
       //delete the message from the queue
       await sqsClient.send(sqs_delete_message_command(Messages[0].ReceiptHandle as string))
+
+      await kafkaProducer.disconnect()
+
    }
 }
 
