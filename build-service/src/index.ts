@@ -1,6 +1,5 @@
-import chalk from "chalk";
-import path from "path";
 import fs from "fs";
+import path from "path";
 import { z } from "zod";
 
 import {
@@ -46,36 +45,36 @@ async function init() {
       await runCommand('docker', ['run', '--name', 'build-container', '-e', `GITHUB_URL=${git_url}`, 'build-server'])
          .then((code: number) => {
             process1Success = true;
-            console.log(chalk.blue("Process 1 closed with SuccessCode:", code))
+            console.log("Process 1 closed with SuccessCode:", code)
          })
-         .catch((code: number) => console.log(chalk.blue("Process 1 closed with ErrorCode:", code)))
+         .catch((code: number) => console.log("Process 1 closed with ErrorCode:", code))
 
       if (process1Success) {
          //process 2 : copy build folder
          await runCommand('docker', ['cp', 'build-container:/home/app/output/build', 'build'])
             .then((code: number) => {
                process2Success = true
-               console.log(chalk.green("\nBuild copied successfully."))
-               console.log(chalk.blue("\nProcess 2 closed with SuccessCode:", code))
+               console.log("\nBuild copied successfully.")
+               console.log("\nProcess 2 closed with SuccessCode:", code)
             })
-            .catch((code: number) => console.log(chalk.blue("Process 2 closed with ErrorCode:", code)))
+            .catch((code: number) => console.log("Process 2 closed with ErrorCode:", code))
       }
 
       //process 3 upload build 
       if (process1Success && process2Success) {
          await sendObjectsToS3(project_id)
             .then((code: number) => {
-               console.log(chalk.green("\nBuild uploaded successfully."))
-               console.log(chalk.blue("\nProcess 3 closed with SuccessCode:", code))
+               console.log("\nBuild uploaded successfully.")
+               console.log("\nProcess 3 closed with SuccessCode:", code)
             })
-            .catch((code: number) => console.log(chalk.blue("Process 3 closed with ErrorCode:", code)))
+            .catch((code: number) => console.log("Process 3 closed with ErrorCode:", code))
          fs.rmSync(path.join(process.cwd(), "build"), { recursive: true, force: true })
       }
 
       //process 4 delete build-container
       await runCommand('docker', ['rm', 'build-container'])
-         .then((code: number) => console.log(chalk.blue("Process 4 closed with SuccessCode:", code)))
-         .catch((code: number) => console.log(chalk.blue("Process 4 closed with ErrorCode:", code)))
+         .then((code: number) => console.log("Process 4 closed with SuccessCode:", code))
+         .catch((code: number) => console.log("Process 4 closed with ErrorCode:", code))
 
 
       //delete the message from the queue
