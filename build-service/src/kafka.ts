@@ -9,7 +9,7 @@ const kafka = new Kafka({
     clientId: `skywave-build-server`,
     brokers: [process.env.KAFKA_BROKER_URL as string],
     ssl: {
-        ca: [fs.readFileSync(path.join(process.cwd(), 'kafka.pem'), 'utf-8')]
+        ca: [fs.readFileSync(path.join(path.resolve(process.cwd(), '..'), 'kafka.pem'), 'utf-8')]
     },
     sasl: {
         username: process.env.KAFKA_USERNAME as string,
