@@ -1,6 +1,9 @@
 import fs from "fs";
 import path from "path";
-import { Kafka } from "kafkajs"
+import { Kafka } from "kafkajs";
+
+import dotenv from "dotenv";
+dotenv.config();
 
 const kafka = new Kafka({
     clientId: `skywave-build-server`,
@@ -14,10 +17,9 @@ const kafka = new Kafka({
         mechanism: 'plain'
     }
 })
-
 export const kafkaProducer = kafka.producer();
 
-export const generateLogProducer = (project_id: string, deployment_id: string) => {
+export const generateLogProducer = (project_id: string, deployment_id: string) => { //closure
     return async (log: string) => {
         await kafkaProducer.send({
             topic: "build-logs",
