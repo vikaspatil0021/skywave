@@ -1,10 +1,9 @@
 import mime from "mime-types";
 
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: './../.env' });
 
 // -----------aws sqs and s3 client handlers--------------
-
 import { S3Client, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
 import { DeleteMessageCommand, ReceiveMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 

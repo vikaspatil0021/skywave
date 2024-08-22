@@ -3,10 +3,10 @@ import path from "path";
 import { Kafka } from "kafkajs";
 
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: './../.env' });
 
 const kafka = new Kafka({
-    clientId: `skywave-build-server`,
+    clientId: `skywave-kafka-producer`,
     brokers: [process.env.KAFKA_BROKER_URL as string],
     ssl: {
         ca: [fs.readFileSync(path.join(path.resolve(process.cwd(), '..'), 'kafka.pem'), 'utf-8')]
@@ -28,7 +28,8 @@ export const generateLogProducer = (project_id: string, deployment_id: string) =
                 value: JSON.stringify({
                     project_id,
                     deployment_id,
-                    log
+                    log,
+                    created_at: new Date()
                 })
             }]
         })
