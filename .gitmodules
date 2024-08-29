@@ -1,0 +1,3 @@
+[submodule "skywave-web-app"]
+	path = skywave-web-app
+	url = https://github.com/vikaspatil0021/skywave-web-app.git
