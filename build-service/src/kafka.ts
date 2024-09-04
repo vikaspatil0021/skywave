@@ -19,14 +19,13 @@ const kafka = new Kafka({
 })
 export const kafkaProducer = kafka.producer();
 
-export const generateLogProducer = (project_id: string, deployment_id: string) => { //closure
+export const generateLogProducer = (deployment_id: string) => { //closure
     return async (log: string) => {
         await kafkaProducer.send({
             topic: "build-logs",
             messages: [{
                 key: "logs",
                 value: JSON.stringify({
-                    project_id,
                     deployment_id,
                     log,
                     created_at: new Date()

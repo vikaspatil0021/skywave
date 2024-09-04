@@ -66,7 +66,7 @@ import path from "path";
 const buildDirPath = path.join(process.cwd(), "build");
 
 
-export async function sendObjectsToS3(projectId: string, logProducer: (log: string) => void): Promise<number> {
+export async function sendObjectsToS3(domain: string, logProducer: (log: string) => void): Promise<number> {
    return new Promise(async (resolve, reject) => {
       try {
          logProducer("\nUploading build...\n")
@@ -85,7 +85,7 @@ export async function sendObjectsToS3(projectId: string, logProducer: (log: stri
 
                const res = await s3Client.send(s3_putObject_command({
                   Bucket: 'vercel-bucket-service',
-                  Key: `__ouput/${projectId}/${file}`,
+                  Key: `__ouput/${domain}/${file}`,
                   Body: fs.createReadStream(filePath),
                   ContentType: mime.lookup(filePath) as string
                }));

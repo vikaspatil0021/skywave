@@ -14,7 +14,7 @@ import { generateLogProducer, kafkaProducer } from "./kafka.js";
 
 
 const schema = z.object({
-   project_id: z.string(),
+   domain: z.string(),
    deployment_id: z.string(),
    repo_url: z.string().url().includes("github.com", { message: "Invalid GitHub URL" })
 });
@@ -42,11 +42,11 @@ async function init() {
          continue
       }
 
-      const { repo_url, project_id, deployment_id } = result?.data;
+      const { repo_url, domain, deployment_id } = result?.data;
 
-      //connect kafka and using closure to pass project_id and deployment_id
+      //connect kafka and using closure to pass and deployment_id
       await kafkaProducer.connect()
-      const logProducer = generateLogProducer(project_id, deployment_id);
+      const logProducer = generateLogProducer(deployment_id);
 
 
       //process 1 : clone => install => build
@@ -69,7 +69,7 @@ async function init() {
 
       //process 3 upload build 
       if (process1Success && process2Success) {
-         await sendObjectsToS3(project_id, logProducer)
+         await sendObjectsToS3(domain, logProducer)
             .then((code: number) => {
                logProducer(`\nBuild uploaded successfully.\nProcess 3 closed with SuccessCode: ${code}`)
             })
