@@ -24,12 +24,12 @@ async function init() {
             const promises = batch?.messages.map((msg: MessageSetEntry | RecordBatchEntry) => {
                 return new Promise(async (resolve, reject) => {
 
-                    const { deployment_id, log, project_id, created_at } = JSON.parse(msg.value?.toString() as string) as Message;
+                    const { deployment_id, log, created_at } = JSON.parse(msg.value?.toString() as string) as Message;
 
                     try {
                         await db_client.insert({
                             table: 'log_events',
-                            values: [{ id: uuidv4(), project_id, deployment_id, log, created_at }],
+                            values: [{ id: uuidv4(), deployment_id, log, created_at }],
                             format: 'JSONEachRow'
                         });
 
