@@ -28,7 +28,7 @@ async function init() {
 
                     try {
                         await db_client.insert({
-                            table: 'log_events',
+                            table: 'build_logs',
                             values: [{ id: uuidv4(), deployment_id, log, created_at }],
                             format: 'JSONEachRow'
                         });
