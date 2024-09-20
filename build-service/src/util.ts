@@ -35,17 +35,17 @@ const s3_putObject_command = (objectData: PutObjectCommandInput) => new PutObjec
 
 import { spawn } from "child_process";
 
-export function runCommand(command: string, args: string[], logProducer: (log: string) => void): Promise<number> {
+export function runCommand(command: string, args: string[], logProducer: (log: string) => Promise<void>): Promise<number> {
    return new Promise((resolve, reject) => {
 
       const cmd = spawn(command, args);
 
-      cmd.stdout.on('data', (data: Buffer) => {
-         logProducer(data.toString());
+      cmd.stdout.on('data', async (data: Buffer) => {
+         await logProducer(data.toString());
       });
 
-      cmd.stderr.on('data', (data: Buffer) => {
-         logProducer(data.toString());
+      cmd.stderr.on('data', async (data: Buffer) => {
+         await logProducer(data.toString());
       });
 
       cmd.on('close', (code: number) => {
@@ -66,10 +66,10 @@ import path from "path";
 const buildDirPath = path.join(process.cwd(), "build");
 
 
-export async function sendObjectsToS3(domain: string, logProducer: (log: string) => void): Promise<number> {
+export async function sendObjectsToS3(domain: string, logProducer: (log: string) => Promise<void>): Promise<number> {
    return new Promise(async (resolve, reject) => {
       try {
-         logProducer("\nUploading build...\n")
+         await logProducer("\nUploading build...\n")
          const files_and_folders = fs.readdirSync(buildDirPath, { recursive: true }) as string[];
 
          const files = files_and_folders.filter((file: string) => {    //return only files
@@ -90,16 +90,16 @@ export async function sendObjectsToS3(domain: string, logProducer: (log: string)
                   ContentType: mime.lookup(filePath) as string
                }));
 
-               logProducer(`${res.$metadata.httpStatusCode} ${file} uploaded`)
+               await logProducer(`${res.$metadata.httpStatusCode} ${file} uploaded`)
             } catch (error: any) {
-               logProducer(`Error uploading file: ${file} ${error.message}`);
+               await logProducer(`Error uploading file: ${file} ${error.message}`);
             }
          })
 
          await Promise.all(uploadPromises);
          resolve(0)
       } catch (error: any) {
-         logProducer(error?.message)
+         await logProducer(error?.message)
          reject(1)
       }
    })

@@ -51,36 +51,42 @@ async function init() {
 
       //process 1 : clone => install => build
       await runCommand('docker', ['run', '--name', 'build-container', '-e', `GITHUB_URL=${repo_url}`, 'build-server'], logProducer)
-         .then((code: number) => {
+         .then(async (code: number) => {
             process1Success = true;
-            logProducer(`Process 1 closed with SuccessCode:${code}`)
+            await logProducer(`Process 1 closed with SuccessCode:${code}`)
+            await logProducer(' ')
          })
-         .catch((code: number) => logProducer(`Process 1 closed with ErrorCode:${code}`))
+         .catch(async(code: number) => await logProducer(`Process 1 closed with ErrorCode:${code}`))
 
       if (process1Success) {
          //process 2 : copy build folder
          await runCommand('docker', ['cp', 'build-container:/home/app/output/build', 'build'], logProducer)
-            .then((code: number) => {
+            .then(async (code: number) => {
                process2Success = true
-               logProducer(`\nBuild copied successfully.\nProcess 2 closed with SuccessCode:${code}`)
+               await logProducer(`Build copied successfully.`)
+               await logProducer(`Process 2 closed with SuccessCode:${code}`)
+               await logProducer(' ')
             })
-            .catch((code: number) => logProducer(`Process 2 closed with ErrorCode:${code}`))
+            .catch(async(code: number) => await logProducer(`Process 2 closed with ErrorCode:${code}`))
       }
 
       //process 3 upload build 
       if (process1Success && process2Success) {
          await sendObjectsToS3(domain, logProducer)
-            .then((code: number) => {
-               logProducer(`\nBuild uploaded successfully.\nProcess 3 closed with SuccessCode: ${code}`)
+            .then(async(code: number) => {
+               await logProducer(' ')
+               await logProducer(`Build uploaded successfully.`)
+               await logProducer(`Process 3 closed with SuccessCode: ${code}`)
+               await logProducer(' ')
             })
-            .catch((code: number) => logProducer(`Process 3 closed with ErrorCode:${code}`))
+            .catch(async(code: number) => await logProducer(`Process 3 closed with ErrorCode:${code}`))
          fs.rmSync(path.join(process.cwd(), "build"), { recursive: true, force: true })
       }
 
       //process 4 delete build-container
       await runCommand('docker', ['rm', 'build-container'], logProducer)
-         .then((code: number) => logProducer(`Process 4 closed with SuccessCode: ${code}`))
-         .catch((code: number) => logProducer(`Process 4 closed with ErrorCode:${code}`))
+         .then(async(code: number) => await logProducer(`Process 4 closed with SuccessCode: ${code}`))
+         .catch(async(code: number) => await logProducer(`Process 4 closed with ErrorCode:${code}`))
 
 
       //delete the message from the queue
