@@ -21,7 +21,7 @@ export const s3Client = new S3Client(awsConfig)
 export const sqs_receive_message_command = new ReceiveMessageCommand({
    QueueUrl: process.env.SQS_URL as string,
    MaxNumberOfMessages: 1,
-   WaitTimeSeconds: 10
+   WaitTimeSeconds: 2
 })
 
 export const sqs_delete_message_command = (receiptHandle: string) => new DeleteMessageCommand({

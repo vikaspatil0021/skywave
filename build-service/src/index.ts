@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 import { z } from "zod";
 
+import { exec } from "child_process";
+
 import {
    runCommand,
    sendObjectsToS3,
@@ -13,6 +15,7 @@ import {
 import { generateLogProducer, kafkaProducer } from "./kafka.js";
 
 
+
 const schema = z.object({
    domain: z.string(),
    deployment_id: z.string(),
@@ -22,14 +25,14 @@ const schema = z.object({
 
 async function init() {
 
-   while (1) {
       let process1Success = false as boolean;
       let process2Success = false as boolean;
 
-      // recieve messages = {id:'abc123',url:'https://github.com/vikaspatil0021/exmapleRepo'}
+      // recieve messages
       const { Messages } = await sqsClient.send(sqs_receive_message_command);
       if (!Messages) {
-         continue;
+         exec('sudo shutdown -h now')
+         return;
       }
 
       const msg = JSON.parse(Messages[0].Body as string);
@@ -38,8 +41,9 @@ async function init() {
       if (result.error) {
          console.log(result.error);
          await sqsClient.send(sqs_delete_message_command(Messages[0].ReceiptHandle as string))
-
-         continue
+         
+         exec('sudo shutdown -h now')
+         return;
       }
 
       const { repo_url, domain, deployment_id } = result?.data;
@@ -94,7 +98,8 @@ async function init() {
 
       await kafkaProducer.disconnect()
 
-   }
+      exec('sudo shutdown -h now')
+
 }
 
 
