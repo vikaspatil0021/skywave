@@ -26,6 +26,7 @@ async function init() {
    let process2Success = false as boolean;
 
    const metadata = process.env.DEPLOYMENT_METADATA as string
+   console.log(metadata)
    if (!metadata) {
       exec('sudo shutdown -h now')
       return;
@@ -35,7 +36,7 @@ async function init() {
    const result = schema.safeParse(data);
 
    if (result.error) {
-      console.log(result.error);
+      console.log("Error0:", result.error);
 
       exec('sudo shutdown -h now')
       return;
