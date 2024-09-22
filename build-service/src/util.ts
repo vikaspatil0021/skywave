@@ -3,9 +3,8 @@ import mime from "mime-types";
 import dotenv from "dotenv";
 dotenv.config({ path: './../.env' });
 
-// -----------aws sqs and s3 client handlers--------------
+// -----------aws s3 client handlers--------------
 import { S3Client, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
-import { DeleteMessageCommand, ReceiveMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 
 const awsConfig = {
    region: 'ap-south-1',
@@ -15,19 +14,8 @@ const awsConfig = {
    }
 }
 
-export const sqsClient = new SQSClient(awsConfig);
 export const s3Client = new S3Client(awsConfig)
 
-export const sqs_receive_message_command = new ReceiveMessageCommand({
-   QueueUrl: process.env.SQS_URL as string,
-   MaxNumberOfMessages: 1,
-   WaitTimeSeconds: 2
-})
-
-export const sqs_delete_message_command = (receiptHandle: string) => new DeleteMessageCommand({
-   QueueUrl: process.env.SQS_URL as string,
-   ReceiptHandle: receiptHandle
-})
 
 const s3_putObject_command = (objectData: PutObjectCommandInput) => new PutObjectCommand(objectData)
 
