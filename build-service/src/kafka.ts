@@ -17,19 +17,33 @@ const kafka = new Kafka({
         mechanism: 'plain'
     }
 })
+
 export const kafkaProducer = kafka.producer();
 
 export const generateLogProducer = (deployment_id: string) => { //closure
-    return async (log: string) => {
+    return async (value: string, type: 'Log' | "Status") => {
+        let params;
+
+        if (type === 'Log') {
+            params = {
+                type,
+                deployment_id,
+                log: value,
+                created_at: new Date()
+            }
+        } else if (type === 'Status') {
+            params = {
+                type,
+                status: value,
+                deployment_id
+            }
+        }
+
         await kafkaProducer.send({
             topic: "build-logs",
             messages: [{
                 key: "logs",
-                value: JSON.stringify({
-                    deployment_id,
-                    log,
-                    created_at: new Date()
-                })
+                value: JSON.stringify(params)
             }]
         })
     }
