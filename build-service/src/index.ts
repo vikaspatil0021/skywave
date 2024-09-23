@@ -101,9 +101,9 @@ async function init() {
 
 
    if (process1Success && process2Success && process3Success) {
-      logProducer("Ready", "Status")
+      await logProducer("Ready", "Status")
    } else {
-      logProducer("Error", "Status")
+      await logProducer("Error", "Status")
    }
    
    await kafkaProducer.disconnect()
