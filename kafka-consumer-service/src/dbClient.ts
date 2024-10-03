@@ -1,7 +1,7 @@
 import fs from "fs";
 
 import dotenv from "dotenv";
-dotenv.config({ path: "./../.env" });
+dotenv.config();
 
 import pg from "pg";
 import { createClient } from "@clickhouse/client";

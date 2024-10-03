@@ -3,7 +3,7 @@ import path from "path";
 import { Kafka } from "kafkajs";
 
 import dotenv from "dotenv";
-dotenv.config({ path: "./../.env" });
+dotenv.config();
 
 const kafka = new Kafka({
     clientId: `skywave-kafka-consumer`,
@@ -14,10 +14,10 @@ const kafka = new Kafka({
     sasl: {
         username: process.env.KAFKA_USERNAME as string,
         password: process.env.KAFKA_PASSWORD as string,
-        mechanism: 'plain'
+        mechanism: 'scram-sha-512'
     }
 });
 
 
-export const kafkaConsumer = kafka.consumer({ groupId: 'kafka-consumer-23' });
+export const kafkaConsumer = kafka.consumer({ groupId: 'kafka-consumer-group' });
 

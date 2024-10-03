@@ -3,7 +3,7 @@ import path from "path";
 import { Kafka } from "kafkajs";
 
 import dotenv from "dotenv";
-dotenv.config({ path: './../.env' });
+dotenv.config();
 
 const kafka = new Kafka({
     clientId: `skywave-kafka-producer`,
@@ -14,7 +14,7 @@ const kafka = new Kafka({
     sasl: {
         username: process.env.KAFKA_USERNAME as string,
         password: process.env.KAFKA_PASSWORD as string,
-        mechanism: 'plain'
+        mechanism: 'scram-sha-512'
     }
 })
 

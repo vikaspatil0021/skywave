@@ -1,7 +1,7 @@
 import mime from "mime-types";
 
 import dotenv from "dotenv";
-dotenv.config({ path: './../.env' });
+dotenv.config();
 
 // -----------aws s3 client handlers--------------
 import { S3Client, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
