@@ -1,6 +1,8 @@
 #!/bin/bash
 
 export GITHUB_URL=$GITHUB_URL
+export BUILD_COMMAND=$BUILD_COMMAND
+export NODE_OPTIONS='--openssl-legacy-provider'
 
 echo -e "Cloning from GitHub URL: $GITHUB_URL"
 
@@ -36,7 +38,7 @@ else
 fi
 
 echo -e "Building the project..."
-npm run build
+$BUILD_COMMAND
 
 if [ $? -eq 0 ]; then
 	echo -e "Build completed successfully."

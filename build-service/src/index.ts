@@ -16,13 +16,17 @@ import { generateLogProducer, kafkaProducer } from "./kafka.js";
 const schema = z.object({
    domain: z.string(),
    deployment_id: z.string(),
-   repo_url: z.string().url().includes("github.com", { message: "Invalid GitHub URL" })
+   repo_url: z.string().url().includes("github.com", { message: "Invalid GitHub URL" }),
+   build_command: z.string().optional(),
+   output_dir: z.string().optional()
 });
 
 type Deployment_Metadata = {
    repo_url: string,
    domain: string,
-   deployment_id: string
+   deployment_id: string,
+   output_dir?: string,
+   build_command?: string,
 }
 
 async function init() {
@@ -41,7 +45,6 @@ async function init() {
       }
 
       result = schema.safeParse(JSON.parse(metadata));
-
       if (result.error) {
          throw new Error("Invalid metadata")
       }
@@ -50,8 +53,8 @@ async function init() {
       exec('sudo shutdown -h now')
    }
 
-   const { repo_url, domain, deployment_id } = result?.data as Deployment_Metadata;
-
+   const { repo_url, domain, deployment_id, build_command, output_dir } = result?.data as Deployment_Metadata;
+   
    //connect kafka and using closure to pass and deployment_id
    await kafkaProducer.connect()
    const logProducer = generateLogProducer(deployment_id);
@@ -59,7 +62,7 @@ async function init() {
    logProducer("Building", "Status")
 
    //process 1 : clone => install => build
-   await runCommand('docker', ['run', '--name', 'build-container', '-e', `GITHUB_URL=${repo_url}`, 'build-server'], logProducer)
+   await runCommand('docker', ['run', '--name', 'build-container', '-e', `GITHUB_URL=${repo_url}`, '-e', `BUILD_COMMAND=${build_command ?? "npm run build"}`, 'build-server'], logProducer)
       .then(async (code: number) => {
          process1Success = true;
          await logProducer(`Process 1 closed with SuccessCode:${code}`, "Log")
@@ -69,7 +72,7 @@ async function init() {
 
    if (process1Success) {
       //process 2 : copy build folder
-      await runCommand('docker', ['cp', 'build-container:/home/app/output/build', 'build'], logProducer)
+      await runCommand('docker', ['cp', `build-container:/home/app/output/${output_dir ?? "build"}`, 'build'], logProducer)
          .then(async (code: number) => {
             process2Success = true
             await logProducer(`Build copied successfully.`, "Log")
@@ -105,7 +108,7 @@ async function init() {
    } else {
       await logProducer("Error", "Status")
    }
-   
+
    await kafkaProducer.disconnect()
 
    exec('sudo shutdown -h now')
