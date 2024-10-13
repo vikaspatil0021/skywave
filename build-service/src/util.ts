@@ -70,10 +70,22 @@ export async function sendObjectsToS3(domain: string, logProducer: (value: strin
          const uploadPromises = files.map(async (file: string) => {
             try {
                const filePath = path.join(buildDirPath, file as string);
+               const file_name = path.basename(filePath);
+               let key = '';
+
+               if (file_name.includes(".html")) {
+                  key = `__ouput/${domain}/${file_name}`
+               } else if (file_name.includes(".css")) {
+                  key = `__ouput/${domain}/css/${file_name}`
+               } else if (file_name.includes(".js")) {
+                  key = `__ouput/${domain}/js/${file_name}`
+               } else {
+                  key = `__ouput/${domain}/others/${file_name}`
+               }
 
                const res = await s3Client.send(s3_putObject_command({
                   Bucket: 'vercel-bucket-service',
-                  Key: `__ouput/${domain}/${file}`,
+                  Key: key,
                   Body: fs.createReadStream(filePath),
                   ContentType: mime.lookup(filePath) as string
                }));
