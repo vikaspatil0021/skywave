@@ -7,6 +7,7 @@ import { exec } from "child_process";
 import {
    runCommand,
    sendObjectsToS3,
+   cloudfront_invalidation,
 } from "./util.js";
 
 import { generateLogProducer, kafkaProducer } from "./kafka.js";
@@ -54,7 +55,7 @@ async function init() {
    }
 
    const { repo_url, domain, deployment_id, build_command, output_dir } = result?.data as Deployment_Metadata;
-   
+
    //connect kafka and using closure to pass and deployment_id
    await kafkaProducer.connect()
    const logProducer = generateLogProducer(deployment_id);
@@ -94,6 +95,11 @@ async function init() {
          })
          .catch(async (code: number) => await logProducer(`Process 3 closed with ErrorCode:${code}`, "Log"))
       fs.rmSync(path.join(process.cwd(), "build"), { recursive: true, force: true })
+   }
+
+   //invalidate objects in s3 at /[domain]/*
+   if (process3Success) {
+      await cloudfront_invalidation(domain)
    }
 
    //process 4 delete build-container

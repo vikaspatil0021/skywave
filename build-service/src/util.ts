@@ -5,6 +5,7 @@ dotenv.config();
 
 // -----------aws s3 client handlers--------------
 import { S3Client, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
+import { CloudFrontClient, CreateInvalidationCommand, CreateInvalidationCommandInput } from "@aws-sdk/client-cloudfront";
 
 const awsConfig = {
    region: 'ap-south-1',
@@ -15,9 +16,11 @@ const awsConfig = {
 }
 
 export const s3Client = new S3Client(awsConfig)
+export const cloudFrontClient = new CloudFrontClient(awsConfig);
 
 
 const s3_putObject_command = (objectData: PutObjectCommandInput) => new PutObjectCommand(objectData)
+const cloudFront_create_invalidation_command = (input_data: CreateInvalidationCommandInput) => new CreateInvalidationCommand(input_data);
 
 //------runCommand function handler----------
 
@@ -103,4 +106,29 @@ export async function sendObjectsToS3(domain: string, logProducer: (value: strin
          reject(1)
       }
    })
-} 
+}
+
+
+//---------invalidating the objects in s3 at /[domain]/*
+export async function cloudfront_invalidation(domain: string) {
+   return new Promise(async (resolve, reject) => {
+      try {
+
+         await cloudFrontClient.send(cloudFront_create_invalidation_command({
+            DistributionId: process.env.AWS_DISTRIBUTION_ID,
+            InvalidationBatch:{
+               Paths: {
+                  Quantity: 1,
+                  Items: [
+                     `/${domain}/*`,
+                  ],
+               },
+               CallerReference: (new Date()).toISOString(),
+            }
+         }));
+         resolve(0)
+      } catch (error: any) {
+         reject(1)
+      }
+   })
+}
