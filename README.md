@@ -7,7 +7,7 @@
 
 ## Introduction
 
-Skywave is the open-source cloud platform for deployment of static sites.
+Skywave is the open-source cloud platform for deployment of static websites.
 
 ### Features
 
@@ -21,13 +21,22 @@ Skywave is the open-source cloud platform for deployment of static sites.
 
 - **Supports Popular Frameworks**: Compatible with top frameworks like React, Angular, Vue, and more, letting you build with your preferred tools.
 
-## Tech Stack
+## Built with
 
 - [Next.js](https://nextjs.org/) – framework
 - [TypeScript](https://www.typescriptlang.org/) – language
 - [Tailwind](https://tailwindcss.com/) – CSS
-- [PlanetScale](https://planetscale.com/) – database
 - [NextAuth.js](https://next-auth.js.org/) – auth
+- [Kafka](https://kafka.apache.org/) – logs streaming
+- [Clickhouse](https://clickhouse.com/) – logs database
+- [Postgresql](https://www.postgresql.org/) – main database
+- [Prisma](https://www.prisma.io/) – ORM
+- [Shadcn](https://ui.shadcn.com/) – ui
+- [S3](https://aws.amazon.com/s3/) – build storage
+- [Cloudfront](https://aws.amazon.com/cloudfront/) – build distribution
+- [tRPC](https://trpc.io/) – api
+
+## Architecture
 
   
 ## Clone, build and store
