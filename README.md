@@ -1,5 +1,5 @@
 <p align='center'>
-  <a href="https://skywave-web-app.vercel.app">
+  <a href="https://skywave-web-app.vercel.app" target='_blank'>
     <img alt="Skywave is the open-source cloud platform for deployment of static sites." 
       src="https://github.com/user-attachments/assets/0b575f6a-a02a-46cf-ab4f-bd05761b1d1e">
   </a>
