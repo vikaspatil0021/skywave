@@ -77,17 +77,17 @@ export async function sendObjectsToS3(domain: string, logProducer: (value: strin
                let key = '';
 
                if (file_name.includes(".html")) {
-                  key = `__ouput/${domain}/${file_name}`
+                  key = `__output/${domain}/${file_name}`
                } else if (file_name.includes(".css")) {
-                  key = `__ouput/${domain}/css/${file_name}`
+                  key = `__output/${domain}/css/${file_name}`
                } else if (file_name.includes(".js")) {
-                  key = `__ouput/${domain}/js/${file_name}`
+                  key = `__output/${domain}/js/${file_name}`
                } else {
-                  key = `__ouput/${domain}/others/${file_name}`
+                  key = `__output/${domain}/others/${file_name}`
                }
 
                const res = await s3Client.send(s3_putObject_command({
-                  Bucket: 'vercel-bucket-service',
+                  Bucket: 'skywave-artifacts-storage',
                   Key: key,
                   Body: fs.createReadStream(filePath),
                   ContentType: mime.lookup(filePath) as string
